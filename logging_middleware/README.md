@@ -5,6 +5,8 @@
 - FastAPI
 - Uvicorn
 - Pydantic
+- SQLModel
+- BaseHTTPMiddleware
 
 ## Key Features:
 - Robust API design using FastAPI
