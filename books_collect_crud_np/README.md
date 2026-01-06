@@ -67,7 +67,7 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
-The server starts running on (https://127.0.0.1:8000/docs)
+The server starts running on (https://127.0.0.1:8000)
 
 ## API Endpoints (specified in app.api.books_api.py)
 
