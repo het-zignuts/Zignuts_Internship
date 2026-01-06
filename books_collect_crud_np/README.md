@@ -80,7 +80,7 @@ The server starts running on (https://127.0.0.1:8000)
 | /books/ | POST | Create a new book | - | api_create_book(...)|
 | /books?author=... | GET | List books by the author specified in query| Returns all books for `author=None` | api_list_books(...)|
 
-#### You can check the API endpoints and test them [here](https://127.0.0.1:8000/docs) while running the app.
+#### You can check the API endpoints and test them at (https://127.0.0.1:8000/docs) while running the app.
 
 ## Data Storage :
 Data is stored as a list of dictionaries (each dict is a python object representing a book), present in app.db.books_db.py a module as books_db.
