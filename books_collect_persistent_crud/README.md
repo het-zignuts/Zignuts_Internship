@@ -5,6 +5,8 @@
 - FastAPI
 - Uvicorn
 - Pydantic
+- SQLModel
+- SQLite
 
 ## Key Features:
 - Robust API design using FastAPI
