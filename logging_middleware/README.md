@@ -1,4 +1,4 @@
-# BOOKS COLLECTION - CRUD (in - memory) 
+# BOOKS COLLECTION - Middleware 
 
 ## Tech-Stack:
 - Python (3.14.2)
