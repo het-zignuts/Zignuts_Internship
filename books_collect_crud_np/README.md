@@ -4,6 +4,7 @@
 - Python (3.14.2)
 - FastAPI
 - Uvicorn
+- Pydantic
 
 ## Key Features:
 - Robust API design using FastAPI
