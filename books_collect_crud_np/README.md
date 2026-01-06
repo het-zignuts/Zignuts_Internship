@@ -67,7 +67,7 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
-
+The server starts running on (https://127.0.0.1:8000/docs)
 
 ## API Endpoints (specified in app.api.books_api.py)
 
@@ -79,6 +79,8 @@ uvicorn app.main:app --reload
 | /books/{books_id} | DELETE | DELETE a book wih specified ID | - | api_delete_book(...)|
 | /books/ | POST | Create a new book | - | api_create_book(...)|
 | /books?author=... | GET | List books by the author specified in query| Returns all books for `author=None` | api_list_books(...)|
+
+#### You can check the API endpoints and test them [here](https://127.0.0.1:8000/docs) while running the app.
 
 ## Data Storage :
 Data is stored as a list of dictionaries (each dict is a python object representing a book), present in app.db.books_db.py a module as books_db.
@@ -98,5 +100,6 @@ It is handled by APIRouter of FastAPI whose instance is registered in main.py...
 
 ## The main.py serves as the entry point with the FastAPI instance `app`.
 
+## Check out the docs for FastAPI [here](https://fastapi.tiangolo.com/).
 ### Author:  
 #### Het Shukla
