@@ -1,8 +1,6 @@
 from sqlmodel import SQLModel
 from app.models import user, book
-from .session import DatabaseSession
+from app.db.session import db_session_manager
 
 def init_db():
-    db_session = DatabaseSession()
-    engine = db_session.engine
-    SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(db_session_manager.engine)

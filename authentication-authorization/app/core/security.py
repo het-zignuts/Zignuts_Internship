@@ -3,15 +3,15 @@ from app.core.config import Config
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from enum import Enum
-from uuid import uuid4
+from uuid import uuid4, UUID
 from app.models.refreshtoken import RefreshToken
-from app.db.session import DatabaseSession
+# from app.db.session import DatabaseSession
+from sqlmodel import Session
+from fastapi import Depends, HTTPException
+from app.models.user import User
+from sqlmodel import select
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-class UserRole(str, Enum):
-    ADMIN = "admin"
-    USER = "user
 
 class Security:
     @staticmethod
@@ -19,14 +19,23 @@ class Security:
         return pwd_context.hash(password)
 
     @staticmethod
-    def verify_password(plain_password: str, hashed_password: str) -> bool:
-        return pwd_context.verify(plain_password, hashed_password)
+    def verify_password(email: str, plain_password: str, session: Session) -> bool:
+        user=session.exec(select(User).where(User.email==email)).first()
+        if not user:
+            raise HTTPException(status_code=400, detail="User not found")
+        return pwd_context.verify(plain_password, user.password)
 
     @staticmethod
     def create_access_token(data: dict) -> str:
         payload = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=Config.TOKEN_EXPIRY_TIME)
-        payload.update({"exp": expire})
+        expires_at=payload.get('iat')+ Config.TOKEN_EXPIRY_TIME * 60
+        # expire = datetime.utcfromtimestamp(expires_at)
+        # expire = datetime.utcnow() + timedelta(minutes=60)
+        # iat=datetime.utcnow()
+        # payload.update({"iat": int(iat.timestamp())})
+        print("Token issued at (iat):", int(payload.get('iat')))
+        payload.update({"exp": int(expires_at)})
+        print("Token expiration time (exp):", int(expires_at))
         payload.update({"type": "access"})
         encoded_jwt = jwt.encode(payload, Config.SECRET_KEY, Config.ALGORITHM)
         return encoded_jwt
@@ -40,16 +49,17 @@ class Security:
             return None
 
     @staticmethod
-    def create_refresh_token(user_id: UUID):
+    def create_refresh_token(user_id: UUID, role: str):
         created_at=datetime.utcnow()
-        exp_time=datetime.utcnow() + timedelta(days=Config.REFRESH_EXPIRY_TIME)
+        exp_time=created_at + timedelta(days=20)
         token_id=str(uuid4())
         payload={
             "sub": user_id,
             "token_id": token_id,
-            "created_at": created_at,
-            "exp": exp_time,
-            "type": "refresh"
+            "created_at": int(created_at.timestamp()),
+            "exp": int(exp_time.timestamp()),
+            "type": "refresh",
+            "role": role
         }
         encoded_refresh_jwt=jwt.encode(payload, Config.REFRESH_SECRET_KEY, Config.ALGORITHM)
         return {
@@ -60,112 +70,8 @@ class Security:
             }
 
     @staticmethod
-    def store_refresh_token(session: Session=Depends(DatabaseSession().get_session), token_id: str, exp_time: datetime, user_id: UUID):
+    def store_refresh_token(token_id: str, exp_time: datetime, user_id: UUID, session: Session):
         token=RefreshToken(token_id=token_id, exp=exp_time, user_id=user_id)
         session.add(token)
         session.commit()
         session.refresh(token)
-
-
-
-# from datetime import datetime, timedelta
-# from enum import Enum
-# from typing import Any, Optional
-
-# from jose import jwt
-# from passlib.context import CryptContext
-
-# from app.core.config import settings
-
-
-# # -------------------------------
-# # Password hashing
-# # -------------------------------
-
-# pwd_context = CryptContext(
-#     schemes=["bcrypt"],
-#     deprecated="auto"
-# )
-
-
-# def hash_password(password: str) -> str:
-#     """
-#     Hash a plain-text password.
-#     """
-#     return pwd_context.hash(password)
-
-
-# def verify_password(plain_password: str, hashed_password: str) -> bool:
-#     """
-#     Verify a password against its hash.
-#     """
-#     return pwd_context.verify(plain_password, hashed_password)
-
-
-# # -------------------------------
-# # User Roles
-# # -------------------------------
-
-# class UserRole(str, Enum):
-#     USER = "user"
-#     ADMIN = "admin"
-
-
-# # -------------------------------
-# # JWT helpers
-# # -------------------------------
-
-# def _create_token(
-#     subject: str | int,
-#     token_type: str,
-#     expires_delta: timedelta,
-#     extra_claims: Optional[dict[str, Any]] = None,
-# ) -> str:
-#     """
-#     Internal helper for creating JWT tokens.
-#     """
-#     payload = {
-#         "sub": str(subject),
-#         "type": token_type,
-#         "iat": datetime.utcnow(),
-#         "exp": datetime.utcnow() + expires_delta,
-#     }
-
-#     if extra_claims:
-#         payload.update(extra_claims)
-
-#     return jwt.encode(
-#         payload,
-#         settings.SECRET_KEY,
-#         algorithm=settings.ALGORITHM,
-#     )
-
-
-# def create_access_token(
-#     user_id: int,
-#     role: UserRole,
-# ) -> str:
-#     """
-#     Short-lived access token.
-#     """
-#     return _create_token(
-#         subject=user_id,
-#         token_type="access",
-#         expires_delta=timedelta(
-#             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-#         ),
-#         extra_claims={"role": role.value},
-#     )
-
-
-# def create_refresh_token(user_id: int) -> str:
-#     """
-#     Long-lived refresh token.
-#     """
-#     return _create_token(
-#         subject=user_id,
-#         token_type="refresh",
-#         expires_delta=timedelta(
-#             days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-#         ),
-#     )

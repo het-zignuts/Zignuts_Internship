@@ -8,4 +8,4 @@ class AccessToken(Token):
     refresh_token: str
 
 class RefreshToken(Token):
-    access_token: str
+    refresh_token: str

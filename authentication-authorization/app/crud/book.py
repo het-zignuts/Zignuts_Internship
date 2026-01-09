@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlmodel import Session, select
-from app.schema.book import BookCreate, BookResponse, BookUpdate, BookPatch
+from app.schemas.book import BookCreate, BookResponse, BookUpdate, BookPatch
 from app.models.book import Book
 
 def create_book(book: BookCreate, session: Session, current_user: User) -> BookResponse:
