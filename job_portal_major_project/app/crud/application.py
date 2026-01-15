@@ -8,6 +8,7 @@ from app.schemas.application import ApplicationCreate, ApplicationUpdate, Applic
 from app.models.job import Job
 from app.crud.job import get_job_by_id
 from app.core.enum import ApplicationStatus
+import os
 
 def create_application(application: ApplicationCreate, user_id: UUID, job_id: UUID, resume_filename: str, resume_path: str, session: Session) -> ApplicationResponse:
     job=get_job_by_id(job_id, session)
@@ -55,10 +56,15 @@ def update_application(application_id: UUID, new_application: ApplicationUpdate,
 
 def delete_application(application_id: UUID, session: Session) -> bool:
     application=session.exec(select(Application).where(Application.id==application_id)).first()
+    user_id=application.user_id
+    user=session.exec(select(User).where(User.id==user_id)).first()
+    resume_path=application.resume_path
     if not application:
         return False
     session.delete(application)
     session.commit()
+    if resume_path and os.path.exists(resume_path):
+        os.remove(resume_path)
     return True
 
 def add_application_to_job(application_id: UUID, job_id: UUID, session: Session) -> bool:
@@ -104,3 +110,4 @@ def remove_application_from_user(application: Application, user_id: UUID, sessio
     session.add(user)
     session.commit()
     return True
+    

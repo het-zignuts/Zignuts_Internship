@@ -8,7 +8,6 @@ from app.core.security import Security
 from app.core.enum import UserRole
 from app.models.user import User
 from typing import List
-from uuid import UUID
 
 users_router = APIRouter(prefix="/users", tags=["users"])
 
@@ -28,7 +27,7 @@ def get_user_me(current_user: User = Depends(get_current_user)):
     raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 @users_router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: UUID, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+def get_user(user_id: str, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
     owner_or_admin = check_owner_or_admin(user_id, current_user)
     print(owner_or_admin)
     if owner_or_admin:
@@ -50,7 +49,7 @@ def delete_user_me(current_user: User = Depends(get_current_user), session: Sess
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 @users_router.delete("/{user_id}", status_code=204)
-def delete_user_api(user_id: UUID, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+def delete_user_api(user_id: str, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
     owner_or_admin = check_owner_or_admin(user_id, current_user)
     if owner_or_admin:
         deleted=False

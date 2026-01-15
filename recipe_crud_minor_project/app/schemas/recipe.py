@@ -38,7 +38,7 @@ class RecipePatch(BaseModel):
     image_url: str | None = None
 
 class RecipeResponse(BaseModel):
-    id: UUID
+    id: str
     title: str
     cuisine: str
     category: RecipeCategory

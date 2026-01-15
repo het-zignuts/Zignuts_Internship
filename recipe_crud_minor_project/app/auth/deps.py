@@ -30,7 +30,7 @@ def get_current_user(session : Session = Depends(db_session_manager.get_session)
         print("Payload decoded: " + str(payload))
         if payload:
             print("Payload exists...")
-            user_id: UUID = UUID(payload.get("sub"))
+            user_id: str = str(payload.get("sub"))
             tkn_type: str|None=payload.get("type")
             if user_id is None or tkn_type is None:
                 print("user id:" + str(user_id)+" this one..")
@@ -55,7 +55,7 @@ def check_admin_user(current_user: User = Depends(get_current_user)) -> bool:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     return True
 
-def check_owner_or_admin(user_id: UUID, current_user: User) -> bool:
+def check_owner_or_admin(user_id: str, current_user: User) -> bool:
     if current_user.role == UserRole.ADMIN or current_user.id == user_id:
         return True
     raise HTTPException(status_code=403, detail="Insufficient permissions")

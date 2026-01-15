@@ -20,7 +20,7 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 def register_user(user: UserCreate, session: Session = Depends(db_session_manager.get_session)):
     user= create_user(session, user)
     if not user:
-        raise HTTPException(status_code=400, details="Email already registered...")
+        raise HTTPException(status_code=400, detail="Email already registered...")
     return user
 
 @auth_router.post("/login", response_model=AccessToken)
@@ -32,7 +32,7 @@ def login_user(user: UserCreate, session: Session = Depends(db_session_manager.g
         access_token = Security.create_access_token({"sub": str(user_db.id), "role": user_db.role, "iat": time.time()})
         print("LOGIN TOKEN ISSUED AT:", int(time.time()))
         refresh_jwt_token = Security.create_refresh_token(str(user_db.id), user_db.role)
-        Security.store_refresh_token(token_id=refresh_jwt_token["token_id"], exp_time=refresh_jwt_token["exp"], user_id=user_db.id, session=session)
+        Security.store_refresh_token(token_id=refresh_jwt_token["token_id"], exp_time=refresh_jwt_token["exp"], user_id=str(user_db.id), session=session)
         refresh_token=refresh_jwt_token["ref_token"]
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
     else:
@@ -48,7 +48,7 @@ def refresh_access_token(refresh_token: RefreshToken, session: Session = Depends
         raise HTTPException(status_code=401, detail="Refresh token not found or revoked")
     new_access_token = Security.create_access_token({"sub": token_data["sub"], "role": token_data["role"], "iat": time.time()})
     new_refresh_jwt_token = Security.create_refresh_token(token_data["sub"], token_data["role"])
-    Security.store_refresh_token(token_id=new_refresh_jwt_token["token_id"], exp_time=new_refresh_jwt_token["exp"], user_id=UUID(token_data["sub"]), session=session)
+    Security.store_refresh_token(token_id=new_refresh_jwt_token["token_id"], exp_time=new_refresh_jwt_token["exp"], user_id=str(token_data["sub"]), session=session)
     session.delete(ref_token_db)
     session.commit()
     return {"access_token": new_access_token, "refresh_token": new_refresh_jwt_token["ref_token"], "token_type": "bearer"}

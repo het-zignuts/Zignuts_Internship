@@ -32,7 +32,7 @@ def get_job_api(job_id: UUID, session: Session = Depends(db_session_manager.get_
 @router.get("/", response_model=Page[JobResponse])
 def list_jobs_api(
     session: Session = Depends(db_session_manager.get_session),
-    search_query: Optional[str] = Query(None, alias="search"),
+    search_query: Optional[str] = Query(None),
     location: Optional[str] = None,
     mode: Optional[ModeOfWork] = None,
     employment_type: Optional[EmploymentType] = None,

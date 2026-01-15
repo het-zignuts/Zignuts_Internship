@@ -49,7 +49,7 @@ class Security:
             return None
 
     @staticmethod
-    def create_refresh_token(user_id: UUID, role: str):
+    def create_refresh_token(user_id: str, role: str):
         created_at=datetime.utcnow()
         exp_time=created_at + timedelta(days=20)
         token_id=str(uuid4())
@@ -70,7 +70,7 @@ class Security:
             }
 
     @staticmethod
-    def store_refresh_token(token_id: str, exp_time: datetime, user_id: UUID, session: Session):
+    def store_refresh_token(token_id: str, exp_time: datetime, user_id: str, session: Session):
         token=RefreshToken(token_id=token_id, exp=exp_time, user_id=user_id)
         session.add(token)
         session.commit()

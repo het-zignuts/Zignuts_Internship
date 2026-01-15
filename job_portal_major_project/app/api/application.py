@@ -11,6 +11,7 @@ from app.schemas.application import ApplicationResponse
 from app.crud.application import *
 from app.crud.job import get_job_by_id
 from app.crud.company import get_company_by_id
+from app.core.config import Config
 
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
@@ -28,7 +29,7 @@ def create_application_api(
     company = get_company_by_id(job.company_id, session)
     if not company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
-    uploads_dir = "uploads/resumes"
+    uploads_dir = Config.UPLOAD_RESUME_DIR
     os.makedirs(uploads_dir, exist_ok=True)
     resume_filename = f"{current_user.id}_{job_id}_{resume.filename}"
     resume_path = os.path.join(uploads_dir, resume_filename)
@@ -94,13 +95,13 @@ def delete_application_api(application_id: UUID, current_user: User = Depends(ge
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
     if application.user_id != current_user.id and current_user.role != UserRole.ADMIN and current_user.role != UserRole.RECRUITER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
-    success = delete_application(application_id, session)
-    removed_from_job= remove_application_from_job(application_id, application.job_id, session)
-    removed_from_user=remove_application_from_user(application.id, current_user.id, session)
+    removed_from_job= remove_application_from_job(application, application.job_id, session)
+    removed_from_user=remove_application_from_user(application, application.user_id, session)
     if not removed_from_job:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to unlink application from job")
     if not removed_from_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to unlink application from user")
+    success = delete_application(application_id, session)
     if not success:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to delete application")
     return

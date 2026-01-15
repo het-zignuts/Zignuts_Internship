@@ -13,5 +13,5 @@ class Book(SQLModel, table=True):
     author: str = Field(max_length=100, nullable=False)
     publication_year: int | None = Field(default=None, nullable=True)
     isbn: str | None = Field(default=None, max_length=13, nullable=True, unique=True)
-    owner_id: UUID = Field(foreign_key="user.id", nullable=False,)
+    owner_id: UUID = Field(foreign_key="user.id", nullable=False)
     owner: Mapped[Optional["User"]] = Relationship(back_populates="books")
