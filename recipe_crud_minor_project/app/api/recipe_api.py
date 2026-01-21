@@ -19,8 +19,8 @@ def api_create_recipe(recipe: RecipeCreate, session: Session = Depends(db_sessio
     return recipe_created
 
 @router.get("/{recipe_id}", response_model=RecipeResponse)
-def api_get_recipe(recipe_id: str, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
-    recipe = get_recipe(UUID(recipe_id), session)
+def api_get_recipe(recipe_id: UUID, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+    recipe = get_recipe(recipe_id, session)
     print("recipe OWNER:", recipe.uploaded_by)
     print("CURRENT USER:", current_user.id)
     print("ROLE:", current_user.role)
@@ -31,25 +31,25 @@ def api_get_recipe(recipe_id: str, session: Session = Depends(db_session_manager
     raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 @router.put("/{recipe_id}", response_model=RecipeResponse)
-def api_update_recipe(recipe_id: str, new_recipe: RecipeUpdate, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
-    recipe = get_recipe(UUID(recipe_id), session)
+def api_update_recipe(recipe_id: UUID, new_recipe: RecipeUpdate, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+    recipe = get_recipe(recipe_id, session)
     print("recipe OWNER:", recipe.uploaded_by)
     print("CURRENT USER:", current_user.id)
     print("ROLE:", current_user.role)
     if recipe is None:
         raise HTTPException(status_code=404, detail="recipe not found")
     if check_recipe_owner_or_admin(recipe, current_user):
-        updated_recipe = update_recipe(UUID(recipe_id), new_recipe, session)
+        updated_recipe = update_recipe(recipe_id, new_recipe, session)
         if updated_recipe is None:
             raise HTTPException(status_code=404, detail="recipe not found")
         return updated_recipe
     raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 @router.delete("/{recipe_id}", response_model=dict)
-def api_delete_recipe(recipe_id: str, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+def api_delete_recipe(recipe_id: UUID, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
     print(f"Recipe id recieved in delete api as param: {recipe_id}")
-    print(f"Recipe id passed to get crud: {UUID(recipe_id)}")
-    recipe = get_recipe(UUID(recipe_id), session)
+    print(f"Recipe id passed to get crud: {recipe_id}")
+    recipe = get_recipe(recipe_id, session)
     print("recipe OWNER:", recipe.uploaded_by)
     print("CURRENT USER:", current_user.id)
     print("ROLE:", current_user.role)
@@ -74,16 +74,16 @@ def api_list_recipes(session: Session = Depends(db_session_manager.get_session),
     return recipes
 
 @router.patch("/{recipe_id}", response_model=RecipeResponse)
-def api_partial_update_recipe(recipe_id: str, new_recipe: RecipePatch, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
+def api_partial_update_recipe(recipe_id: UUID, new_recipe: RecipePatch, session: Session = Depends(db_session_manager.get_session), current_user: User = Depends(get_current_user)):
     try:
-        recipe= get_recipe(UUID(recipe_id), session)
+        recipe= get_recipe(recipe_id, session)
         print("recipe OWNER:", recipe.uploaded_by)
         print("CURRENT USER:", current_user.id)
         print("ROLE:", current_user.role)
         if recipe is None:
             raise HTTPException(status_code=404, detail="recipe not found")
         if check_recipe_owner_or_admin(recipe, current_user):
-            updated_recipe = partial_update_recipe(UUID(recipe_id), new_recipe, session)
+            updated_recipe = partial_update_recipe(recipe_id, new_recipe, session)
             if updated_recipe is None:
                 raise HTTPException(status_code=404, detail="recipe not found")
             return updated_recipe

@@ -1,0 +1,5 @@
+employed in : Zignuts Technolab
+role : Software Develpment Engineering Intern
+DOJ : 01-01-2026
+technology : Python
+emp id : Z0396
