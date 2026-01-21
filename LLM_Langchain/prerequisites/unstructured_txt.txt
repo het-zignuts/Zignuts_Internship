@@ -1,0 +1,3 @@
+Hey, there! My name is Het Shukla. I intern as a Software Development Engineer at Zignuts Technolab in Gandhinagar. 
+I am 21 years old at present. 
+My technological domain includes Python, AI/ML and backend frameworks like FastAPI, Django, etc. 
